@@ -32,14 +32,14 @@ module.exports = {
       return api.sendMessage(userCurrentCards, event.senderID);
     } else {
       if (game.players.length - game.leaderboard.length !== 1) {
-        let message = `${message}\n\n${user.name} đã hết lá bài.\n${response.message}`;
+        message = `${message}\n\n${user.name} đã hết lá bài.\n${response.message}`;
         api.sendMessage(message, event.threadID);
       } else {
         //All but one player ran out of cards. Add the last player to the leaderboard and end the game.
         util.addLastPlayerToLeaderBoard(game);
         let leaderBoard = util.displayLeaderBoard(game.leaderboard);
 
-        let message = `${message}\n\n${user.name} đã hét lá bài.\nTrận đấu kết thúc\n\nBảng xếp hạng:${leaderBoard}`;
+        message = `${message}\n\n${user.name} đã hét lá bài.\nTrận đấu kết thúc\n\nBảng xếp hạng:${leaderBoard}`;
 
         api.sendMessage(message, event.threadID);
 
