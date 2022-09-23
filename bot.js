@@ -1,9 +1,13 @@
-const login = require("facebook-chat-api");
+/* eslint-disable no-undef */
+const login = require("fb-chat-api");
 const requireDir = require("require-dir");
 const commands = requireDir("./commands");
 const fs = require("fs");
 const util = require("./util");
 const Player = require("./game/Player");
+
+process.on("unhandledRejection", (error) => console.error(error));
+process.on("uncaughtException", (error) => console.error(error));
 
 login(
   { appState: JSON.parse(fs.readFileSync("appstate.json", "utf-8")) },
@@ -13,13 +17,13 @@ login(
       logLevel: "silent",
       updatePresence: false,
       userAgent:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36",
     });
 
     api.listenMqtt(async function (err, event) {
       if (err) return console.error(err);
       if (event.type !== "message") return;
-      if (!event.isGroup) return;
+      // if (!event.isGroup) return;
       if (!event.body.startsWith("!")) return;
 
       if (!util.usersMap.has(event.senderID)) {
@@ -41,10 +45,22 @@ login(
           event,
         };
 
-        await userFunction(parameters);
+        const handlers = {
+          send: (message, threadID = event.threadID) =>
+            api.sendMessage(message, threadID),
+          reply: (message, threadID = event.threadID) =>
+            api.sendMessage(message, threadID, null, event.messageID),
+        };
+
+        await userFunction(parameters, handlers);
       } catch (err) {
         console.log(err);
-        api.sendMessage(`Error: ${err.message}`, event.senderID);
+        api.sendMessage(
+          `Error: ${err.message}`,
+          event.threadID,
+          null,
+          event.messageID
+        );
       }
     });
   }

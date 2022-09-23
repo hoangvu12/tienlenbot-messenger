@@ -36,7 +36,7 @@ function stringToSlug(str) {
   str = str
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\-]/g, "-")
+    .replace(/[^a-z0-9-]/g, "-")
     .replace(/-+/g, "-");
 
   return str;
@@ -65,8 +65,10 @@ function joinGame(gameId, userId) {
 
 function leaveGame(userId) {
   const user = usersMap.get(userId);
-  user.gameId = null;
-  usersMap.set(userId, user);
+
+  const newPlayer = new Player(user.name, user.id);
+
+  usersMap.set(userId, newPlayer);
 }
 
 function getUsername(api, id) {
@@ -107,18 +109,18 @@ function displayCards(cards, options) {
 
   let message = "";
 
-  if (options && options.userCard)
-    message = "|----------------------------|\n\n";
+  if (options?.userCard) message = "|----------------------------|\n\n";
 
   cards.forEach((card, index) => {
     const suite = suites[card.suite];
-    message += `[${index}]  ${card.number}${suite.icon} (${suite.name})\n`;
+    message += `[${index + 1}]  ${card.number}${suite.icon} (${suite.name})\n`;
   });
 
   message += "";
 
-  if (options && options.userCard)
+  if (options?.userCard) {
     message += "\n|----------------------------|";
+  }
 
   return message;
 }
@@ -212,7 +214,7 @@ function findThreeOfSpades(players) {
     }
   }
   //if no one has a 3 of spades, first player is returned
-  return players[0];
+  return players[Math.floor(Math.random() * players.length)];
 }
 
 function setNextPlayer(game) {
@@ -235,7 +237,7 @@ function setNextPlayer(game) {
       finish = true;
     }
   }
-  return "Giờ là lượt của " + game.players[game.currentPlayer].name;
+  return "Giờ là lượt của @" + game.players[game.currentPlayer].name;
 }
 
 function numberOfSkippedPlayers(players) {
@@ -267,7 +269,7 @@ function resetRound(game) {
   });
 
   return `Tất cả người chơi đã bỏ lượt
-Bây giờ là lượt của ${game.players[game.currentPlayer].name}`;
+Bây giờ là lượt của @${game.players[game.currentPlayer].name}`;
 }
 
 //check if the cards are a valid sequence based on numbers
@@ -416,9 +418,7 @@ module.exports = {
   setNextPlayer,
   distributeCards,
   getGameById,
-  getPlayerById,
   getGameIdFromUser,
-  removeCards,
   removeGameById,
   isGameExist,
   isUserInAGame,

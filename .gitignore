@@ -1,3 +1,5 @@
 node_modules
 assets
 appstate.json
+yarn-error.log
+yarn.lock

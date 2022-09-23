@@ -8,16 +8,17 @@ module.exports = {
     const playerName = args.join(" ");
     const slug = util.stringToSlug(playerName);
 
-    if (!util.isUserInAGame(event.senderID))
+    if (!util.isUserInAGame(event.senderID)) {
       return api.sendMessage(
         "Bạn không có tham gia trận đấu nào!",
         event.threadID
       );
+    }
 
     const game = util.getGameById(util.getGameIdFromUser(event.senderID));
     const players = game.players;
 
-    const chosenPlayer = players.filter((player) => player.slug === slug)[0];
+    const chosenPlayer = players.find((player) => player.slug === slug)[0];
 
     api.sendMessage(
       `Số bài hiện tại của ${chosenPlayer.name} là: ${chosenPlayer.cards.length}`,

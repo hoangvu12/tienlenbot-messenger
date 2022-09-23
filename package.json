@@ -4,19 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha 'test.js'"
+    "test": "mocha 'test.js'",
+    "start": "node bot.js",
+    "login": "node login.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "assert": "^2.0.0",
+    "eslint": "^8.22.0",
     "mocha": "^8.2.1",
     "rewire": "^5.0.0"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
-    "facebook-chat-api": "^1.8.0",
+    "fb-chat-api": "^10.4.13",
     "require-dir": "^1.2.0"
   }
 }

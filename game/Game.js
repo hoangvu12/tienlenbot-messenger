@@ -44,8 +44,25 @@ class Game {
     return returnObject;
   }
 
+  endGame() {
+    const gameId = this.id;
+
+    this.inProgress = false;
+    this.cards = [];
+    this.currentPlayer = null;
+    this.table = null;
+    this.players = this.players.map((player) => {
+      const user = new Player(player.name, player.id);
+
+      user.setGameId(gameId);
+
+      return user;
+    });
+    this.leaderboard = [];
+  }
+
   startGame() {
-    const MINIMUM_PLAYERS = 1;
+    const MINIMUM_PLAYERS = 2;
     const returnObject = { success: true };
 
     if (this.inProgress) {
@@ -57,7 +74,7 @@ class Game {
 
     if (this.players.length < MINIMUM_PLAYERS) {
       returnObject.success = false;
-      returnObject.message = "Cần 2 người chơi trở lên để bắt đầu!";
+      returnObject.message = `Cần ${MINIMUM_PLAYERS} người chơi trở lên để bắt đầu!`;
       this.inProgress = false;
 
       return returnObject;
@@ -95,23 +112,35 @@ class Game {
   }
 
   handleSkip(playerId) {
-    let skipMessage = "";
     let userIndex = util.getPlayerById(playerId, this.players);
 
-    if (userIndex == null) {
-      skipMessage = "Bạn không có ở trong trận đấu!";
-      return skipMessage;
+    const player = this.players[userIndex];
+
+    if (userIndex === null) {
+      return {
+        player,
+        message: "Bạn không có ở trong trận đấu!",
+      };
     }
 
     if (userIndex !== this.currentPlayer) {
-      skipMessage = "Không phải lượt của bạn!";
-      return skipMessage;
+      return {
+        player,
+        message: "Không phải lượt của bạn!",
+      };
     }
 
-    this.players[userIndex].skip = true;
-    skipMessage = this.players[userIndex].name + " Bỏ lượt! ";
+    player.skip = true;
 
-    return skipMessage + util.setNextPlayer(this);
+    const skipMessage = util.setNextPlayer(this);
+
+    const nextPlayer = this.players[this.currentPlayer];
+
+    return {
+      message: `${player.name} Bỏ lượt!\n ${skipMessage}`,
+      player,
+      nextPlayer,
+    };
   }
 
   play(cardsIndex, playerId) {
@@ -122,9 +151,10 @@ class Game {
       player: null,
       win: false,
     };
+
     let playerIndex = util.getPlayerById(playerId, this.players);
 
-    if (playerIndex == null) {
+    if (playerIndex === null) {
       returnObject.message = "Bạn không tham gia trận đấu!";
       return returnObject;
     }
@@ -168,6 +198,7 @@ class Game {
         returnObject.success = true;
         returnObject.cards = chosenCards;
         returnObject.player = this.players[playerIndex];
+        returnObject.nextPlayer = this.players[this.currentPlayer];
       } else {
         returnObject.message = "Lá của bạn không thắng được lá trên bàn!";
         return returnObject;
